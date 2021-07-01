@@ -1,24 +1,20 @@
 const request = require('request');
 
-const readInput = () => process.argv.slice(2);
+const fetchBreedDescription = (breedName = 'Siberian', callback) => {
+  // Form query
+  const url = `https://api.thecatapi.com/v1/breeds/search?q=${breedName}`;
 
-const formQuery = (breed) =>
-  `https://api.thecatapi.com/v1/breeds/search?q=${breed}`;
-
-const getBreedInfo = (breed = 'Siberian') => {
-  const url = formQuery(breed);
   request(url, (error, response, body) => {
     // Request fails
-    if (error) return console.log(error);
+    if (error) return callback(error, null);
 
-    // Check if breed is found
+    // Invalid breed
     const firstCat = JSON.parse(body)[0];
-    if (!firstCat) return console.log('Breed not found');
+    if (!firstCat) return callback('Invalid breed', null);
 
     // All good
-    console.log(firstCat.description);
+    return callback(null, firstCat.description);
   });
 };
 
-const breed = readInput()[0];
-getBreedInfo(breed);
+module.exports = { fetchBreedDescription };
